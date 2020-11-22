@@ -9,3 +9,8 @@
 ## content
 
 Spring Boot Tutorial, building a mysql based rest api for the react js articles frontend.
+
+## tag
+
+  * 02_rest_service
+  * https://spring.io/guides/gs/rest-service/
