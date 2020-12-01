@@ -52,19 +52,10 @@ jobs:
       run: |
         ./mvnw dependency:resolve
 
-    - name: Test with maven
-      run: |
-        ./mvnw clean test
-
-    - name: Verify (integration-tests) with maven
+    - name: Test and Verify (integration-tests) with maven
       run: |
         ./mvnw clean verify
 
     - name: Package with maven
       run: |
         ./mvnw clean package
-
-    - name: Deploy with maven
-      run: mvn -B deploy -Dmaven.javadoc.skip=true -Dmaven.test.skip=true
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

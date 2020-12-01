@@ -4,7 +4,7 @@ on:
   # Run the Build Test and Deploy Workflow on all pushes to master and develop
   push:
     branches:
-    - master
+    - main
 
 jobs:
   build:
@@ -52,11 +52,7 @@ jobs:
       run: |
         ./mvnw dependency:resolve
 
-    - name: Test with maven
-      run: |
-        ./mvnw clean test
-
-    - name: Verify (integration-tests) with maven
+    - name: TEst and Verify (integration-tests) with maven
       run: |
         ./mvnw clean verify
 
