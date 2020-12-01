@@ -4,7 +4,7 @@ on:
   # Run the Build Test and Deploy Workflow on all pushes to master and develop
   push:
     branches:
-    - master
+    - main
 
 jobs:
   build:
