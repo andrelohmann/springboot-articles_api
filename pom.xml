@@ -16,6 +16,7 @@
 
 	<properties>
 		<java.version>15</java.version>
+		<cucumber.version>6.6.1</cucumber.version>
 	</properties>
 
 	<dependencies>
@@ -26,9 +27,68 @@
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
+		<dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+			<!-- Cucumber v6.6.1 still depends on junit4, so the legacy junit-vintage-engine is still necessary -->
+			<!--exclusions>
+				<exclusion>
+					<groupId>org.junit.vintage</groupId>
+					<artifactId>junit-vintage-engine</artifactId>
+				</exclusion>
+			</exclusions-->
 		</dependency>
+
+		<!-- Cucumber dependencies -->
+		<dependency>
+			<groupId>io.cucumber</groupId>
+			<artifactId>cucumber-java</artifactId>
+			<version>${cucumber.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>io.cucumber</groupId>
+			<artifactId>cucumber-junit</artifactId>
+			<version>${cucumber.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>io.cucumber</groupId>
+			<artifactId>cucumber-spring</artifactId>
+			<version>${cucumber.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.awaitility</groupId>
+			<artifactId>awaitility</artifactId>
+			<version>4.0.3</version>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -37,6 +97,48 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+			<!--
+				Necessary Block, to separate Unit Tests from Integration Tests
+			-->
+			<plugin>
+    			<groupId>org.codehaus.mojo</groupId>
+    			<artifactId>build-helper-maven-plugin</artifactId>
+    			<executions>
+        			<execution>
+            			<id>add-test-source</id>
+            			<phase>process-resources</phase>
+            			<goals>
+                			<goal>add-test-source</goal>
+            			</goals>
+            			<configuration>
+                			<sources>
+                    			<source>src/it/java</source>
+                			</sources>
+            			</configuration>
+        			</execution>
+    			</executions>
+			</plugin>
+			<plugin>
+          		<groupId>org.apache.maven.plugins</groupId>
+          		<artifactId>maven-failsafe-plugin</artifactId>
+          		<executions>
+              		<execution>
+                  		<id>integration-test</id>
+                  		<goals>
+                      		<goal>integration-test</goal>
+                  		</goals>
+              		</execution>
+              		<execution>
+                		<id>verify</id>
+                  		<goals>
+                      		<goal>verify</goal>
+                  		</goals>
+              		</execution>
+          		</executions>
+      		</plugin>
+			<!--
+				Block End
+			-->
 		</plugins>
 	</build>
 
