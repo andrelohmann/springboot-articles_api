@@ -21,6 +21,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -42,6 +43,9 @@ public class CucumberSmokeITStepDefinitions {
     @Value("${test.endpoint}")
     private String endpointUrl;
 
+    @Value("${logging.file.name}")
+    private String logFile;
+
     private HttpHeaders headers;
 
     private TestRestTemplate restTemplate;
@@ -49,8 +53,9 @@ public class CucumberSmokeITStepDefinitions {
     private ResponseEntity<String> response;
 
     @Before
-    public void setup() {
+    public void setup() throws IOException {
         Awaitility.setDefaultTimeout(Duration.ofMinutes(5));
+        new FileOutputStream(this.logFile).close();
     }
 
     // https://www.softwaretestinghelp.com/rest-api-testing-with-bdd-cucumber/
