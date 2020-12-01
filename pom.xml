@@ -19,6 +19,14 @@
 		<cucumber.version>6.6.1</cucumber.version>
 	</properties>
 
+	<distributionManagement>
+		<repository>
+			<id>github</id>
+			<name>GitHub ${env.GITHUB_REPOSITORY} Apache Maven Packages</name>
+			<url>https://maven.pkg.github.com/${env.GITHUB_REPOSITORY}</url>
+		</repository>
+	</distributionManagement>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
