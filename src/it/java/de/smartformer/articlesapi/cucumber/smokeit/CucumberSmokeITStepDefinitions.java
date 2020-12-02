@@ -35,7 +35,7 @@ import static org.awaitility.Awaitility.await;
 import static org.awaitility.pollinterval.FibonacciPollInterval.fibonacci;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Answers.values;
+//import static org.mockito.Answers.values;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class CucumberSmokeITStepDefinitions {
@@ -58,15 +58,15 @@ public class CucumberSmokeITStepDefinitions {
 
     private ResponseEntity<String> response;
 
-    private LogFileParserService logParserService = new LogFileParserService(this.logFile);
+    private LogFileParserService logParserService;
 
     @Before
-    public void setup() throws IOException {
+    public void setup() throws IOException  {
         Awaitility.setDefaultTimeout(Duration.ofMinutes(5));
         // Empty the logfile
         new FileOutputStream(this.logFile).close();
         // reset internal state of logfile parser service
-        this.logParserService.reset();
+        this.logParserService = new LogFileParserService(this.logFile);
     }
 
     @Given("Endpoint path is set to {string}")
@@ -200,12 +200,12 @@ public class CucumberSmokeITStepDefinitions {
     }
 
     @And("I observe log code {int}")
-    public void checkCode(Integer logCode) {
+    public void checkCode(Integer logCode) throws IOException {
         assertTrue(this.logParserService.checkCode(logCode));
     }
     
     @And("I observe log code {int} {string}")
-    public void checkMatch(Integer logCode, String match) {
+    public void checkMatch(Integer logCode, String match) throws IOException {
         assertTrue(this.logParserService.checkMatch(logCode, match));
     }
     
@@ -253,6 +253,13 @@ public class CucumberSmokeITStepDefinitions {
         assertThat(root.get("id").asInt()).isEqualTo(id);
     }
 
+
+    @And("I print all LogLines")
+    public void printAllLogLines() throws IOException {
+        this.logParserService.print();
+    }
+
+    // ----------------------------------------------------------------------------------------
     @When("^Send a POST HTTP request$")
     public void sendPostRequest() throws IOException {
 

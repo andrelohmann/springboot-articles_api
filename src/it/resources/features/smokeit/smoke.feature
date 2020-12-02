@@ -123,3 +123,29 @@ Feature: SmokeTesting the articles api
     Then I receive http status "OK"
     And I observe log code 4000
     And I receive a list of 1 article
+  
+  Scenario: Test the Log Reader
+    Given Endpoint path is set to "articles/"
+    When I set a GET/DELETE request HEADER
+    And I set the RestTemplate
+    And I send a dataless "GET" HTTP request
+    Then I receive http status "OK"
+    And I observe log code 4000
+    And I receive a list of 1 article
+    And I send a dataless "GET" HTTP request
+    Then I receive http status "OK"
+    And I observe log code 4000
+    And I receive a list of 1 article
+    And I send a dataless "GET" HTTP request
+    Then I receive http status "OK"
+    And I observe log code 4000
+    And I receive a list of 1 article
+    And I send a dataless "GET" HTTP request
+    Then I receive http status "OK"
+    And I observe log code 4000
+    And I receive a list of 1 article
+    And I send a dataless "GET" HTTP request
+    Then I receive http status "OK"
+    And I observe log code 4000
+    And I receive a list of 1 article
+    And I print all LogLines
