@@ -3,6 +3,7 @@ package de.smartformer.articlesapi.cucumber.smokeit;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -46,6 +47,8 @@ public class CucumberSmokeITStepDefinitions {
     private String endpointUrl;
 
     private String endpointPath;
+
+    private String jsonBody;
 
     private HttpHeaders headers;
 
@@ -115,28 +118,123 @@ public class CucumberSmokeITStepDefinitions {
         }
     }
 
+    @And("I preload jsonBody from file {string}")
+    public void preloadJsonBodyFromFile(String fileName) throws IOException {
+        this.jsonBody = new String(Files.readAllBytes(Paths.get("src/it/resources/" + fileName)));
+    }
+
+    @And("I preload jsonBody with article {string} {string}")
+    public void preloadJsonBodyWithArticle(String title, String content) throws IOException {
+        this.jsonBody = "{" +
+        "    \"title\": \"" + title + "\",\n" +
+        "    \"content\": \"" + content + "\"\n" +
+        "}";
+    }
+
+    @And("I preload jsonBody with article {int} {string} {string}")
+    public void preloadJsonBodyWithExistingArticle(Integer id, String title, String content) throws IOException {
+        this.jsonBody = "{" +
+        "    \"id\": \"" + id + "\",\n" +
+        "    \"title\": \"" + title + "\",\n" +
+        "    \"content\": \"" + content + "\"\n" +
+        "}";
+    }
+
+    @And("I send a data {string} HTTP request")
+    public void sendDataRequest(String postOrPut) {
+
+        HttpEntity<String> entity = new HttpEntity<String>(this.jsonBody, headers);
+
+        final HttpMethod method;
+
+        postOrPut = postOrPut.toLowerCase();
+
+        if(postOrPut.equals("post")){
+            method = HttpMethod.POST;
+        }else if(postOrPut.equals("put")){
+            method = HttpMethod.PUT;
+        }else{
+            method = HttpMethod.GET;
+            log.error(String.format("[5002] sendDataRequest received method: '%s'; only 'post' or 'put' allowed",  postOrPut));
+        }
+
+        this.response = this.restTemplate.exchange(
+                this.endpointUrl + this.endpointPath,
+                method,
+                entity,
+                String.class);
+
+        try {
+            Thread.sleep(1000);                 //1500 milliseconds is one second.
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
     @Then("I receive http status {string}")
     public void receiveStatusCode(String httpStatus){
 
         final HttpStatus selectedHttpStatus = HttpStatus.valueOf(httpStatus);
-        log.info(httpStatus);
         httpStatus = httpStatus.replace("\"", "");
-        log.info(httpStatus);
         assertThat(this.response.getStatusCode()).isEqualTo(selectedHttpStatus);
     }
 
     @And("^I receive health status UP$")
-    public void receiveHealthUp() {
-        log.info("Health Status UP");
-        log.info(response.getBody());
-        log.info(response.getBody());
+    public void receiveHealthUp() throws JSONException {
+        String expected = "{" +
+                "    \"status\": \"UP\"\n" +
+                "}";
+
+        // https://www.baeldung.com/jsonassert <- for help/explanaition of JSONAssert
+        JSONAssert.assertEquals(
+                expected,
+                this.response.getBody(),
+                JSONCompareMode.LENIENT
+        );
     }
 
-    @And("^I receive an empty articles list response$")
-    public void receiveEmptyArticlesResponse() {
-        log.info("Empty Articles Response");
-        log.info(response.getBody());
-        log.info(response.getBody());
+    @And("I receive a list of {int} article(s)")
+    public void receiveEmptyArticlesResponse(Integer numberOfArticles) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode root = mapper.readTree(response.getBody());
+        assertThat(root.size()).isEqualTo(numberOfArticles);
+    }
+    
+    @And("^I receive the first article$")
+    public void receiveFirstArticle() throws IOException, JSONException {
+        String expected = new String(Files.readAllBytes(Paths.get("src/it/resources/article.json")));
+
+        JSONAssert.assertEquals(
+                expected,
+                this.response.getBody(),
+                JSONCompareMode.LENIENT
+        );
+
+        // Fetch the Article ID
+        // http://tutorials.jenkov.com/java-json/jackson-jsonnode.html
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode root = mapper.readTree(response.getBody());
+        assertThat(root.get("id").asInt()).isEqualTo(1);
+    }
+    
+    @And("I receive the article {int} {string} {string}")
+    public void receiveArticle(Integer id, String title, String content) throws JsonProcessingException, JSONException {
+        String expected = "{" +
+        "    \"title\": \"" + title + "\",\n" +
+        "    \"content\": \"" + content + "\"\n" +
+        "}";
+
+        JSONAssert.assertEquals(
+                expected,
+                this.response.getBody(),
+                JSONCompareMode.LENIENT
+        );
+
+        // Fetch the Article ID
+        // http://tutorials.jenkov.com/java-json/jackson-jsonnode.html
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode root = mapper.readTree(response.getBody());
+        assertThat(root.get("id").asInt()).isEqualTo(id);
     }
 
     @When("^Send a POST HTTP request$")
