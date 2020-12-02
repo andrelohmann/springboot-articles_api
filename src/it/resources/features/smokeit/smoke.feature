@@ -153,5 +153,11 @@ Feature: SmokeTesting the articles api
     And I set the RestTemplate
     And I send a dataless "GET" HTTP request
     Then I receive http status "OK"
-    And I observe log code 4001
+    And I observe log code 4002
+    Given Endpoint path is set to "articles/2"
+    When I set a GET/DELETE request HEADER
+    And I set the RestTemplate
+    And I send a dataless "GET" HTTP request
+    Then I receive http status "INTERNAL_SERVER_ERROR"
+    And I observe log code 5000
     And I print all LogLines

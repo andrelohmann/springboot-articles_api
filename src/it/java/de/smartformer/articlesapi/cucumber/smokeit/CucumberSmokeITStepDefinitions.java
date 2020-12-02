@@ -117,11 +117,11 @@ public class CucumberSmokeITStepDefinitions {
                 entity,
                 String.class);
 
-        try {
-            Thread.sleep(1000);                 //1500 milliseconds is one second.
-        } catch (InterruptedException ex) {
-            Thread.currentThread().interrupt();
-        }
+        //try {
+        //    Thread.sleep(1000);                 //1500 milliseconds is one second.
+        //} catch (InterruptedException ex) {
+        //    Thread.currentThread().interrupt();
+        //}
     }
 
     @And("I preload jsonBody from file {string}")
@@ -170,11 +170,11 @@ public class CucumberSmokeITStepDefinitions {
                 entity,
                 String.class);
 
-        try {
-            Thread.sleep(1000);                 //1500 milliseconds is one second.
-        } catch (InterruptedException ex) {
-            Thread.currentThread().interrupt();
-        }
+        //try {
+        //    Thread.sleep(1000);                 //1500 milliseconds is one second.
+        //} catch (InterruptedException ex) {
+        //    Thread.currentThread().interrupt();
+        //}
     }
 
     @Then("I receive http status {string}")
