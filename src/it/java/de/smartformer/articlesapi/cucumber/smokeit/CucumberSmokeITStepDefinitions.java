@@ -131,6 +131,12 @@ public class CucumberSmokeITStepDefinitions {
         assertThat(this.response.getStatusCode()).isEqualTo(selectedHttpStatus);
     }
 
+    @And("I observe log code {int}")
+    public void observeLogCode(Integer logCode){
+
+        assertThat(this.logParserService.checkCode(logCode));
+    }
+
     @And("^I receive health status UP$")
     public void receiveHealthUp() {
         log.info("Health Status UP");

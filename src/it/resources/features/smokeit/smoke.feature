@@ -15,6 +15,7 @@ Feature: SmokeTesting the articles api
     And I set the RestTemplate
     And I send a dataless "GET" HTTP request
     Then I receive http status "OK"
+    And I observe log code "4000"
     And I receive an empty articles list response
 
   Scenario: Fetch not existing article

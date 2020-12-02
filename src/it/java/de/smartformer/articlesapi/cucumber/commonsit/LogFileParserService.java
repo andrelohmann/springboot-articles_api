@@ -4,12 +4,14 @@ public class LogFileParserService {
 
     private String logFile;
 
-    private ArrayList<String> logLines = []; //internal state
+    private ArrayList<LogLine> logLines = []; //internal state
 
     private FilePointer pointer; // File Pointer 
 
     public LogFileParserService(String logFile) {
         this.logFile = logFile;
+
+        // Create a FilePointer, 
     }
 
     public reset(){
