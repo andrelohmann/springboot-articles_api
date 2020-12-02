@@ -4,9 +4,9 @@ public class LogFileParserService {
 
     private String logFile;
 
-    private ArrayList<LogLine> logLines = []; //internal state
+    //private ArrayList<LogLine> logLines; //internal state
 
-    private FilePointer pointer; // File Pointer 
+    //private FilePointer pointer; // File Pointer 
 
     public LogFileParserService(String logFile) {
         this.logFile = logFile;
@@ -14,18 +14,42 @@ public class LogFileParserService {
         // Create a FilePointer, 
     }
 
-    public reset(){
-        this.logLines = [];
+    public void reset(){
+        //this.logLines = [];
         // also reset File Pointer
     }
 
-    public checkCode(Integer logCode){
-        this.fetchLatesLogs();
+    /**
+     * 
+     * @param logCode
+     * 
+     * Check for a log line with the regarding logCode
+     */
+    public Boolean checkCode(Integer logCode){
+        this.fetchLatestLogs();
         // if LogCode in logLines => true
         // else false
+
+        return true;
     }
 
-    private fetchLatestLogs(){
+    /**
+     * 
+     * @param logCode
+     * @param match
+     * 
+     * Check for a log line with the regarding logCode
+     * and match the String as part of the log message
+     */
+    public Boolean checkMatch(Integer logCode, String match){
+        this.fetchLatestLogs();
+        // if LogCode in logLines => true
+        // else false
+
+        return true;
+    }
+
+    private void fetchLatestLogs(){
         // Compare pointer to file size
         // if filesize bigger than last pointer
         //      => fetch latest lines from filepointer to current endOfFile
