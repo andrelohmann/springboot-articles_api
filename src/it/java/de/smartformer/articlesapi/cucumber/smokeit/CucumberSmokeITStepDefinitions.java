@@ -1,5 +1,7 @@
 package de.smartformer.articlesapi.cucumber.smokeit;
 
+import de.smartformer.articlesapi.cucumber.commonsit.LogFileParserService;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -53,11 +55,15 @@ public class CucumberSmokeITStepDefinitions {
 
     private ResponseEntity<String> response;
 
+    private LogFileParserService logParserService = new LogFileParserService(this.logFile);
+
     @Before
     public void setup() throws IOException {
         Awaitility.setDefaultTimeout(Duration.ofMinutes(5));
         // Empty the logfile
         new FileOutputStream(this.logFile).close();
+        // reset internal state of logfile parser service
+        this.logParserService.reset();
     }
 
     @Given("Endpoint path is set to {string}")
@@ -132,6 +138,11 @@ public class CucumberSmokeITStepDefinitions {
         log.info(response.getBody());
     }
 
+    @And("I have parsed log code {string}")
+    public void parseLogCode(String logCode) {
+        this.logParserService.checkCode(logCode);
+    }
+    
     @And("^I receive an empty articles list response$")
     public void receiveEmptyArticlesResponse() {
         log.info("Empty Articles Response");
