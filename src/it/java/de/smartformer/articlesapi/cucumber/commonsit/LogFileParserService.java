@@ -1,10 +1,7 @@
 package de.smartformer.articlesapi.cucumber.commonsit;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.file.InvalidPathException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -14,23 +11,18 @@ public class LogFileParserService {
 
     private RandomAccessFile logFile;
 
-    // https://www.javatpoint.com/java-arraylist
-    private ArrayList<LogLine> logLines = new ArrayList<LogLine>(); // internal state
+    private ArrayList<LogLine> logLines;
 
     public LogFileParserService(String logFilePath) throws IOException {
 
         this.logFilePath = logFilePath;
 
-        // Reset inernal state
-        this.logLines.clear();
+        // Empty inernal state
+        this.logLines = new ArrayList<LogLine>();
 
-        //File file = new File(this.logFilePath);
-        //if (!file.exists()) {
-        //    throw new InvalidPathException(this.logFilePath, "File does not exist");
-        //}
         //https://docs.oracle.com/javase/7/docs/api/java/io/RandomAccessFile.html
         this.logFile = new RandomAccessFile(this.logFilePath, "r");
-        // Reset Filepointer
+        // Set the Filepointer to start
         this.logFile.seek(0);
     }
 
@@ -67,16 +59,13 @@ public class LogFileParserService {
     }
 
     private void fetchLatestLogs() throws IOException {
-        // Compare pointer to file size
-        // if filesize bigger than last pointer
-        //      => fetch latest lines from filepointer to current endOfFile
-        //      => parse the lines for our Log Format ([1234] - Bla, whatever
-        //      => add only all lines, following our log format to the internal state
-        //      => set the pointer to the EoF
-        // else keep pointer as is and do nothing
 
         String line = null;
 
+        // As long as the file handle is kept open,
+        // readLine will always read until it sees EoF
+        // if there have been lines added
+        // readLine will read until the new EoF
         while((line = this.logFile.readLine()) != null){
             this.parseLine(line);
         }
