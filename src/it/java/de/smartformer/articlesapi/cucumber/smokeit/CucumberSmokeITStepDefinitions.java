@@ -32,19 +32,20 @@ import static org.awaitility.Awaitility.await;
 import static org.awaitility.pollinterval.FibonacciPollInterval.fibonacci;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-//import com.adyen.mirakl.connector.cucumber.commonsit.ConnectorITHttpClient;
+import static org.mockito.Answers.values;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class CucumberSmokeITStepDefinitions {
 
     private final Logger log = LoggerFactory.getLogger(CucumberSmokeITStepDefinitions.class);
 
+    @Value("${logging.file.name}")
+    private String logFile;
+
     @Value("${test.endpoint}")
     private String endpointUrl;
 
-    @Value("${logging.file.name}")
-    private String logFile;
+    private String endpointPath;
 
     private HttpHeaders headers;
 
@@ -55,63 +56,87 @@ public class CucumberSmokeITStepDefinitions {
     @Before
     public void setup() throws IOException {
         Awaitility.setDefaultTimeout(Duration.ofMinutes(5));
+        // Empty the logfile
         new FileOutputStream(this.logFile).close();
     }
 
-    // https://www.softwaretestinghelp.com/rest-api-testing-with-bdd-cucumber/
-    @Given("I set the endpoint url")
-    public void setEndpoint() {
-        log.info(this.endpointUrl);
+    @Given("Endpoint path is set to {string}")
+    public void endpointPathIsSetTo(String endpointPath) {
+        this.endpointPath = endpointPath;
     }
 
-    @When("^I set request HEADER$")
-    public void setRequestHeader() {
-        headers = new HttpHeaders();
-        headers.add("Accept", "application/json");
-        //headers.add("Content-Type", "application/json");
-        log.info(this.headers.toString());
+    @When("^I set a GET/DELETE request HEADER$")
+    public void setGetDelRequestHeader() {
+        this.headers = new HttpHeaders();
+        this.headers.add("Accept", "application/json");
+    }
+
+    @When("^I set a POST/PUT request HEADER$")
+    public void setPostPutRequestHeader() {
+        this.headers = new HttpHeaders();
+        this.headers.add("Accept", "application/json");
+        this.headers.add("Content-Type", "application/json");
     }
 
     @And("^I set the RestTemplate$")
-    public void setAuthenticatedRestTemplate() {
+    public void setRestTemplate() {
 
-        restTemplate = new TestRestTemplate();
-
-        log.info("RestTemplate");
+        this.restTemplate = new TestRestTemplate();
     }
 
-    @And("^I send a GET HTTP request$")
-    public void sendGetRequest() throws IOException {
+    @And("I send a dataless {string} HTTP request")
+    public void sendDatalessRequest(String getOrDelete) throws IOException {
 
-        HttpEntity<String> entity = new HttpEntity<String>(null, headers);
+        HttpEntity<String> entity = new HttpEntity<String>(null, this.headers);
 
-        response = restTemplate.exchange(
-                this.endpointUrl,
-                HttpMethod.GET,
+        final HttpMethod method;
+
+        getOrDelete = getOrDelete.toLowerCase();
+
+        if(getOrDelete.equals("get")){
+            method = HttpMethod.GET;
+        }else if(getOrDelete.equals("delete")){
+            method = HttpMethod.DELETE;
+        }else{
+            method = HttpMethod.GET;
+            log.error(String.format("[5001] sendDatalessRequest received method: '%s'; only 'get' or 'delete' allowed",  getOrDelete));
+        }
+
+        this.response = this.restTemplate.exchange(
+                this.endpointUrl + this.endpointPath,
+                method,
                 entity,
                 String.class);
 
-        log.info("send a GET HTTP request");
-
-        log.info(response.getBody());
-
-        log.info("Pausing for 1 second now, to allow email to be send");
         try {
             Thread.sleep(1000);                 //1500 milliseconds is one second.
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
         }
-        log.info("Wake up again");
     }
 
-    @And("^I parsed the regarding log message$")
-    public void parseLogMessage() {
-        log.info("Parse the log message");
+    @Then("I receive http status {string}")
+    public void receiveStatusCode(String httpStatus){
+
+        final HttpStatus selectedHttpStatus = HttpStatus.valueOf(httpStatus);
+        log.info(httpStatus);
+        httpStatus = httpStatus.replace("\"", "");
+        log.info(httpStatus);
+        assertThat(this.response.getStatusCode()).isEqualTo(selectedHttpStatus);
     }
 
-    @Then("^I receive an empty articles list response$")
-    public void receiveEmptyResponse() {
-        log.info("ReceiveEmptyResponse");
+    @And("^I receive health status UP$")
+    public void receiveHealthUp() {
+        log.info("Health Status UP");
+        log.info(response.getBody());
+        log.info(response.getBody());
+    }
+
+    @And("^I receive an empty articles list response$")
+    public void receiveEmptyArticlesResponse() {
+        log.info("Empty Articles Response");
+        log.info(response.getBody());
+        log.info(response.getBody());
     }
 
     @When("^Send a POST HTTP request$")

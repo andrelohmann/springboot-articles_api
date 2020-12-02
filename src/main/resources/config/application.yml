@@ -10,3 +10,12 @@ spring:
 logging:
   file:
     name: application.log
+management:
+  endpoints:
+    enabled-by-default: false
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      enabled: true

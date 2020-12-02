@@ -1,5 +1,5 @@
 test:
-  endpoint: http://localhost:${APP_PORT:8080}/articles/
+  endpoint: http://localhost:${APP_PORT:8080}/
 server:
   port: ${APP_PORT:8080}
 spring:
