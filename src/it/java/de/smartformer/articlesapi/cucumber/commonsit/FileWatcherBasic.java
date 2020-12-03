@@ -47,6 +47,7 @@ public class FileWatcherBasic {
     }
 
     public boolean isModifiedByDate() {
+        this.setCurrentLastModified();
         return this.currentLastModified > this.previousLastModified;
     }
 }

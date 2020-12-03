@@ -20,6 +20,10 @@ public class FileParser {
         }
     }
 
+    public static String readFromPointer(String fileName) {
+        return FileParser.readFromPointer(fileName, 0);
+    }
+
     public static boolean isStringMatch(String allText, String targetText) {
 
         allText = allText.replaceAll("\\[|\\]", "");
