@@ -9,6 +9,13 @@ import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import static io.cucumber.spring.CucumberTestContext.SCOPE_CUCUMBER_GLUE;
+
+@Component
+@Scope(SCOPE_CUCUMBER_GLUE)
 public class LogFileParserService {
 
     private String logFilePath;
