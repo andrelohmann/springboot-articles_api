@@ -2,8 +2,12 @@ package de.smartformer.articlesapi.cucumber.commonsit;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class LogFileParserService {
 
@@ -12,6 +16,12 @@ public class LogFileParserService {
     private RandomAccessFile logFile;
 
     private ArrayList<LogLine> logLines;
+
+    // ----- Parser Logic
+    private String logLineRegex = "^(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}\\.\\d{3})(\\s+)(INFO|ERROR)(.*)(:\\s)\\[(\\d{4})\\](\\s+)(.*)";
+    private Pattern logLinePattern = Pattern.compile(this.logLineRegex);
+    private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+    // -----
 
     public LogFileParserService(String logFilePath) throws IOException {
 
@@ -34,11 +44,18 @@ public class LogFileParserService {
      * @throws IOException
      */
     public Boolean checkCode(Integer logCode) throws IOException {
+        // Update the internal state
         this.fetchLatestLogs();
-        // if LogCode in logLines => true
-        // else false
 
-        return true;
+        // create the iterator
+        Iterator<LogLine> itr = this.logLines.iterator();
+        //traversing elements of ArrayList object
+        while(itr.hasNext()){
+            LogLine ll = (LogLine) itr.next();
+            if(ll.getCode().equals(logCode)) return true;
+        }
+
+        return false;
     }
 
     /**
@@ -51,11 +68,18 @@ public class LogFileParserService {
      * @throws IOException
      */
     public Boolean checkMatch(Integer logCode, String match) throws IOException {
+        // Update the internal state
         this.fetchLatestLogs();
-        // if LogCode in logLines => true
-        // else false
 
-        return true;
+        // create the iterator
+        Iterator<LogLine> itr = this.logLines.iterator();
+        //traversing elements of ArrayList object
+        while(itr.hasNext()){
+            LogLine ll = (LogLine) itr.next();
+            if(ll.getCode().equals(logCode) && ll.getMessage().contains(match)) return true;
+        }
+
+        return false;
     }
 
     private void fetchLatestLogs() throws IOException {
@@ -72,10 +96,14 @@ public class LogFileParserService {
     }
 
     private void parseLine(String line){
-        // @Todo
-        // Parse the line for our log format
-        // if it matches, cut its contents and fill them into the internal state
-        this.logLines.add(new LogLine(LogLineEnum.INFO, 4001, line));
+
+        Matcher matcher = this.logLinePattern.matcher(line);
+
+        if(matcher.matches()){
+            LocalDateTime timestamp = LocalDateTime.parse(matcher.group(1), dateTimeFormatter);
+
+            this.logLines.add(new LogLine(LogLineEnum.valueOf(matcher.group(3)), timestamp, Integer.parseInt(matcher.group(6)), matcher.group(8)));
+        }
     }
 
     /**
